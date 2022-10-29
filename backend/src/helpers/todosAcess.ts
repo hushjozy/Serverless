@@ -10,6 +10,7 @@ const XAWS = AWSXRay.captureAWS(AWS)
 // const logger = createLogger('TodosAccess')
 
 const todosTable = process.env.TODOS_TABLE
+const todosIndex = process.env.TODOS_CREATED_AT_INDEX
 const docClient: DocumentClient = createDynamoDBClient()
 // // TODO: Implement the dataLayer logic
 export async function createTodo(todo: TodoItem): Promise<TodoItem> {
@@ -21,7 +22,7 @@ export async function createTodo(todo: TodoItem): Promise<TodoItem> {
     return todo
   }
 
-  export async function getAllTodosByUserId (userId: string): Promise<TodoItem> {
+  export async function getAllTodosByUserId (userId: string): Promise<TodoItem[]> {
     const result = await docClient.query({
         TableName : todosTable,
         KeyConditionExpression: 'userId = :userId',
@@ -29,10 +30,42 @@ export async function createTodo(todo: TodoItem): Promise<TodoItem> {
             ':userId': userId
         }
     }).promise()
-    const items = result.Items
-    return items as TodoItem[]
-    // return result.Items as TodoItem[]
+    // const items = result.Items
+    // return items as TodoItem[]
+    return result.Items as TodoItem[]
   }
+
+  export async function getTodoById (todoId: string): Promise<TodoItem> {
+    const result = await docClient.query({
+        TableName : todosTable,
+        IndexName : todosIndex,
+        KeyConditionExpression: 'todoId = :todoId',
+        ExpressionAttributeValues: {
+            ':todoId': todoId
+        }
+    }).promise()
+    const items = result.Items
+    if (items.length !== 0) return items[0] as TodoItem
+    return null
+  }
+
+//   To update
+
+  export async function updateTodo (todo: TodoItem): Promise<TodoItem> {
+    const result = await docClient.update({
+        TableName : todosTable,
+        Key: {
+            userId: todo.userId,
+            todoId: todo.todoId
+        },
+        UpdateExpression: 'set attachmentUrl = :attachmentUrl',
+        ExpressionAttributeValues: {
+            ':attachmentUrl': todo.attachmentUrl
+        }
+    }).promise()
+    return result.Attributes as TodoItem
+  }
+
 
   function createDynamoDBClient() {
     if (process.env.IS_OFFLINE) {

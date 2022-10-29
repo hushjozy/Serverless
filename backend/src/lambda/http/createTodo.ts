@@ -15,13 +15,12 @@ export const handler = middy(
     // TODO: Implement creating a new TODO item
     const todo = todoBuilder(newTodo, event)
 
-    const createdTodo =await createTodo(todo)
-console.log(newTodo);
+   await createTodo(todo)
 
      return {
       statusCode: 201,
       body: JSON.stringify({
-        createdTodo
+        todo
       })
     }
   }
