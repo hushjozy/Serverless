@@ -4,29 +4,30 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
 import { cors, httpErrorHandler } from 'middy/middlewares'
 
-// import { updateTodo } from '../../logicLayer/todos'
-// import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
-// import { getUserId } from '../utils'
+import { updateTodo } from '../../dataLayer/todosAcess'
+import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
+// import { todoUpdater } from '../../logicLayer/todos'
+import { getUserId } from '../utils'
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    // const todoId  = event.pathParameters.todoId
-    // const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
-
-    // const toDoItem = await updateTodo(updatedTodo, todoId)
+    const todoId  = event.pathParameters.todoId
+    const userId = getUserId(event)
+  // const updateData: TodoUpdate = JSON.parse(event.body);
+    const todoUpdate: UpdateTodoRequest = JSON.parse(event.body)
 
     // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
 
-console.log(event);
+// console.log(event);
 
-    // await updateTodo(todoId)
-  //   return {
-  //     statusCode: 200,
-  //     body: JSON.stringify({
-  //       item: toDoItem
-  //     })
-  //   }
-  return undefined
+    await updateTodo(userId,todoId,todoUpdate)
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        todo: "updated"
+      })
+    }
+  // return undefined
 
   }
 )

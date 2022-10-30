@@ -3,7 +3,7 @@
 import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
-import { getUserId } from '../utils'
+// import { getUserId } from '../utils'
 import { createLogger } from '../../utils/logger'
 import { deleteTodo, getTodoById } from '../../dataLayer/todosAcess'
 // import { deleteTodo } from '../../logicLayer/todos'

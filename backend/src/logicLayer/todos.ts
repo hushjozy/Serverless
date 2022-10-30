@@ -1,9 +1,9 @@
 // import { TodoAccess } from '../dataLayer/todosAcess'
 // import { AttachmentUtils } from './attachmentUtils';
 import { TodoItem } from '../models/TodoItem'
-// import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
+import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
 import { APIGatewayProxyEvent } from 'aws-lambda';
-// import { TodoUpdate } from '../models/TodoUpdate'
+import { TodoUpdate } from '../models/TodoUpdate'
 import * as uuid from 'uuid'
 import { getUserId } from '../lambda/utils';
 // import * as createError from 'http-errors'
@@ -25,11 +25,16 @@ export function todoBuilder(todoRequest:CreateTodoRequest,event: APIGatewayProxy
      }
      return todo as TodoItem
 }
-// export function updateTodo(updateTodoRequest:UpdateTodoRequest,todoId: string, event: APIGatewayProxyEvent):TodoUpdate{
-//   const userId = getUserId(event)
-//   // const todoId = event.pathParameters.todoId
-//   return todoAccess.updateTodo(updateTodoRequest, todoId, userId)
-// }
+export function todoUpdater(updateTodoRequest:UpdateTodoRequest, event: APIGatewayProxyEvent):TodoUpdate{
+    const todoId = event.pathParameters.todoId
+  const todo =  {
+    todoId : todoId,
+    userId: getUserId(event),
+    dueDate: new Date().toISOString(),
+    ...updateTodoRequest
+ }
+  return todo as TodoUpdate
+}
 
 // export async function deleteTodo(userId: string, todoId: string) {
 //   logger.info(`Deleting todo ${todoId} for user ${userId}`, { userId, todoId })
