@@ -30,7 +30,6 @@ provider:
     ATTACHMENT_S3_BUCKET: serverless-todos-images-hushjoezzy-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
-
 functions:
 
   Auth:
