@@ -1,15 +1,15 @@
-// import { TodosAccess } from './todosAcess'
+// import { TodoAccess } from '../dataLayer/todosAcess'
 // import { AttachmentUtils } from './attachmentUtils';
 import { TodoItem } from '../models/TodoItem'
-// import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 // import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
 import { APIGatewayProxyEvent } from 'aws-lambda';
+// import { TodoUpdate } from '../models/TodoUpdate'
 import * as uuid from 'uuid'
 import { getUserId } from '../lambda/utils';
 // import * as createError from 'http-errors'
 
 import { CreateTodoRequest } from "../requests/CreateTodoRequest";
-// const todosAccess = new TodoAccess()
+// const todoAccess = new TodoAccess()
 
 // // TODO: Implement businessLogic
 
@@ -25,6 +25,11 @@ export function todoBuilder(todoRequest:CreateTodoRequest,event: APIGatewayProxy
      }
      return todo as TodoItem
 }
+// export function updateTodo(updateTodoRequest:UpdateTodoRequest,todoId: string, event: APIGatewayProxyEvent):TodoUpdate{
+//   const userId = getUserId(event)
+//   // const todoId = event.pathParameters.todoId
+//   return todoAccess.updateTodo(updateTodoRequest, todoId, userId)
+// }
 
 // export async function deleteTodo(userId: string, todoId: string) {
 //   logger.info(`Deleting todo ${todoId} for user ${userId}`, { userId, todoId })
