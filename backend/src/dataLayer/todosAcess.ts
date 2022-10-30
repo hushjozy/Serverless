@@ -68,18 +68,18 @@ export async function createTodo(todo: TodoItem): Promise<TodoItem> {
     return result.Attributes as TodoItem
   }
 
-  // export async function deleteTodo(todo: TodoItem): Promise<TodoItem> {
-  //   const result = await docClient
-  //     .delete({
-  //       TableName: todosTable,
-  //       Key: {
-  //         userId: todo.userId,
-  //         todoId: todo.todoId
-  //     },
-  //     })
-  //     .promise()
-  //     return result.Attributes as TodoItem
-  // }
+  export async function deleteTodo(todo: TodoItem): Promise<TodoItem> {
+    const result = await docClient
+      .delete({
+        TableName: todosTable,
+        Key: {
+          userId: todo.userId,
+          todoId: todo.todoId
+      },
+      })
+      .promise()
+      return result.Attributes as TodoItem
+  }
 
   function createDynamoDBClient() {
     if (process.env.IS_OFFLINE) {

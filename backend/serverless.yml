@@ -6,8 +6,8 @@ plugins:
   - serverless-webpack
   - serverless-plugin-tracing
   - serverless-iam-roles-per-function
-  # - serverless-reqvalidator-plugin
-  # - serverless-plugin-canary-deployments
+  - serverless-reqvalidator-plugin
+  - serverless-plugin-canary-deployments
   # - serverless-dynamodb-local
   # - serverless-offline
 
@@ -36,7 +36,14 @@ functions:
 
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
-
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "xray:PutTraceSegments"
+          - "xray:PutTelemetryRecords"
+        Resource:
+          - "*"
+          
   GetTodos:
     handler: src/lambda/http/getTodos.handler
     events:
@@ -51,6 +58,12 @@ functions:
           - dynamodb:Query
         Resource:
           - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: "Allow"
+        Action:
+          - "xray:PutTraceSegments"
+          - "xray:PutTelemetryRecords"
+        Resource:
+          - "*"    
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
     events:
@@ -58,16 +71,21 @@ functions:
           method: post
           path: todos
           cors: true
-          # reqValidatorName: RequestBodyValidator
           authorizer: Auth
           request:
             schemas:
               application/json: ${file(models/create-todo-model.json)}
     iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:PutItem
-      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: "Allow"
+        Action:
+          - "xray:PutTraceSegments"
+          - "xray:PutTelemetryRecords"
+        Resource:
+          - "*"  
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements, and request schemas
   UpdateTodo:
@@ -78,40 +96,44 @@ functions:
           path: todos/{todoId}
           authorizer: Auth
           cors: true
-          # reqValidatorName: RequestBodyValidator
     iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:UpdateItem
-      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: "Allow"
+        Action:
+          - "xray:PutTraceSegments"
+          - "xray:PutTelemetryRecords"
+        Resource:
+          - "*"  
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
-  # DeleteTodo:
-  #   handler: src/lambda/http/deleteTodo.handler
-  #   events:
-  #     - http:
-  #         method: delete
-  #         path: todos/{todoId}
-  #         authorizer: Auth
-  #         cors: true
-  #         # reqValidatorName: RequestBodyValidator
-  #   iamRoleStatements:
-  #     - Effect: Allow
-  #       Action:
-  #         - dynamodb:DeleteItem
-  #       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-  #     - Effect: Allow
-  #       Action:
-  #         - dynamodb:DeleteItem
-  #       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
-  #     - Effect: Allow
-  #       Action:
-  #         - "xray:PutTraceSegments"
-  #         - "xray:PutTelemetryRecords"
-  #       Resource:
-  #         - "*" 
-           # TODO: Configure this function
+  DeleteTodo:
+    handler: src/lambda/http/deleteTodo.handler
+    events:
+      - http:
+          method: delete
+          path: todos/{todoId}
+          authorizer: Auth
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
+      - Effect: Allow
+        Action:
+          - "xray:PutTraceSegments"
+          - "xray:PutTelemetryRecords"
+        Resource:
+          - "*"  
+          # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
@@ -120,22 +142,27 @@ functions:
           method: post
           path: todos/{todoId}/attachment
           cors: true
-          # reqValidatorName: RequestBodyValidator
           authorizer: Auth
     iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:UpdateItem
-      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
-    - Effect: Allow
-      Action:
-        - s3:PutItem
-        - s3:GetItem
-      Resource: arn:aws:s3:::{self:provider.environment.ATTACHMENT_S3_BUCKET}/*
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
+      - Effect: Allow
+        Action:
+          - s3:PutItem
+          - s3:GetItem
+        Resource: arn:aws:s3:::{self:provider.environment.ATTACHMENT_S3_BUCKET}/*
+      - Effect: "Allow"
+        Action:
+          - "xray:PutTraceSegments"
+          - "xray:PutTelemetryRecords"
+        Resource:
+          - "*"  
 
 resources:
   Resources:
@@ -200,20 +227,6 @@ resources:
               Resource: 'arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*'
         Bucket: !Ref AttachmentsBucket
 
-#     WebSocketConnectionsDynamoDBTable:
-#       Type: AWS::DynamoDB::Table
-#       Properties:
-#         AttributeDefinitions:
-#           -
-#             AttributeName: id
-#             AttributeType: S
-#         KeySchema:
-#           -
-#             AttributeName: id
-#             KeyType: HASH
-#         BillingMode: PAY_PER_REQUEST
-#         TableName: ${self:provider.environment.CONNECTIONS_TABLE}
-
     RequestBodyValidator:
       Type: AWS::ApiGateway::RequestValidator
       Properties:
@@ -232,130 +245,4 @@ resources:
         ResponseType: DEFAULT_4XX
         RestApiId:
           Ref: ApiGatewayRestApi
-#     AttachmentsBucket:
-#       Type: AWS::S3::Bucket
-#       DependsOn: SNSTopicPolicy
-#       Properties:
-#         BucketName: ${self:provider.environment.IMAGES_S3_BUCKET}
-#         NotificationConfiguration:
-#           TopicConfigurations:
-#             - Event: s3:ObjectCreated:Put
-#               Topic: !Ref ImagesTopic
-#         CorsConfiguration:
-#           CorsRules:
-#             -
-#               AllowedOrigins:
-#                 - '*'
-#               AllowedHeaders:
-#                 - '*'
-#               AllowedMethods:
-#                 - GET
-#                 - PUT
-#                 - POST
-#                 - DELETE
-#                 - HEAD
-#               MaxAge: 3000
-
-#     BucketPolicy:
-#       Type: AWS::S3::BucketPolicy
-#       Properties:
-#         PolicyDocument:
-#           Id: MyPolicy
-#           Version: "2012-10-17"
-#           Statement:
-#             - Sid: PublicReadForGetBucketObjects
-#               Effect: Allow
-#               Principal: '*'
-#               Action: 's3:GetObject'
-#               Resource: 'arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*'
-#         Bucket: !Ref AttachmentsBucket
-
-#     SNSTopicPolicy:
-#       Type: AWS::SNS::TopicPolicy
-#       Properties:
-#         PolicyDocument:
-#           Version: "2012-10-17"
-#           Statement:
-#             - Effect: Allow
-#               Principal:
-#                 AWS: "*"
-#               Action: sns:Publish
-#               Resource:
-#                 !Ref ImagesTopic
-#               Condition:
-#                 ArnLike:
-#                   AWS:SourceArn: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}
-#         Topics:
-#           - !Ref ImagesTopic
-
-#     ThumbnailsBucket:
-#       Type: AWS::S3::Bucket
-#       Properties:
-#         BucketName: ${self:provider.environment.THUMBNAILS_S3_BUCKET}
-
-#     ImagesTopic:
-#       Type: AWS::SNS::Topic
-#       Properties:
-#         DisplayName: Image bucket topic
-#         TopicName: ${self:custom.topicName}
-
-#     # ImagesSearch:
-#     #   Type: AWS::Elasticsearch::Domain
-#     #   Properties:
-#     #     ElasticsearchVersion: '6.3'
-#     #     DomainName: images-search-${self:provider.stage}
-#     #     ElasticsearchClusterConfig:
-#     #       DedicatedMasterEnabled: false
-#     #       InstanceCount: '1'
-#     #       ZoneAwarenessEnabled: false
-#     #       InstanceType: t2.small.elasticsearch
-#     #     EBSOptions:
-#     #       EBSEnabled: true
-#     #       Iops: 0
-#     #       VolumeSize: 10
-#     #       VolumeType: 'gp2'
-
-#     #     AccessPolicies:
-#     #       Version: '2012-10-17'
-#     #       Statement:
-#     #         -
-#     #           Effect: Allow
-#     #           Principal:
-#     #             AWS: '*'
-#     #           Action: 'es:*'
-#     #           Resource: '*'
-
-#     KMSKey:
-#       Type: AWS::KMS::Key
-#       Properties:
-#         Description: KMS key to encrypt Auth0 secret
-#         KeyPolicy:
-#           Version: '2012-10-17'
-#           Id: key-default-1
-#           Statement:
-#             - Sid: Allow administration of the key
-#               Effect: Allow
-#               Principal:
-#                 AWS:
-#                   Fn::Join:
-#                   - ':'
-#                   - - 'arn:aws:iam:'
-#                     - Ref: AWS::AccountId
-#                     - 'root'
-#               Action:
-#                 - 'kms:*'
-#               Resource: '*'
-
-#     KMSKeyAlias:
-#       Type: AWS::KMS::Alias
-#       Properties:
-#         AliasName: alias/auth0Key-${self:provider.stage}
-#         TargetKeyId: !Ref KMSKey
-
-#     Auth0Secret:
-#       Type: AWS::SecretsManager::Secret
-#       Properties:
-#         Name: ${self:provider.environment.AUTH_0_SECRET_ID}
-#         Description: Auth0 secret
-#         KmsKeyId: !Ref KMSKey
 

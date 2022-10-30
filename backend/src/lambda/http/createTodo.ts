@@ -4,8 +4,8 @@ import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
 import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
 // import { getUserId } from '../utils'
-import { todoBuilder } from '../../helpers/todos'
-import { createTodo } from '../../helpers/todosAcess'
+import { todoBuilder } from '../../logicLayer/todos'
+import { createTodo } from '../../dataLayer/todosAcess'
 // import { getUserId } from '../utils';
 // import { createTodo } from '../../businessLogic/todos'
 
