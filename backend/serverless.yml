@@ -29,7 +29,6 @@ provider:
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
     ATTACHMENT_S3_BUCKET: serverless-todos-images-hushjoezzy-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
-    AUTH_0_SECRET_ID: a7CK9b5wJozlS39ZV6_XtzXyNCggLqIngbolJsTq2Gv8gvp9dDx-TQPnaeBkx8zE
 
 
 functions:
