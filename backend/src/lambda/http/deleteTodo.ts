@@ -1,6 +1,7 @@
 
 
 import 'source-map-support/register'
+// import { cors, httpErrorHandler } from 'middy/middlewares'
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 // import { getUserId } from '../utils'
@@ -18,10 +19,12 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 await deleteTodo(todo)
   return {
     statusCode: 201,
-    // headers: {
-    //   'Access-Control-Allow-Origin': '*',
-    //   'Access-Control-Allow-Credentials': true
-    // },
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true
+    },
     body: " "
   }
 }
+
+
