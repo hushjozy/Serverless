@@ -4,10 +4,11 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
 import { cors, httpErrorHandler } from 'middy/middlewares'
 
-import { updateTodo } from '../../dataLayer/todosAcess'
+// import { updateTodo } from '../../dataLayer/todosAcess'
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 // import { todoUpdater } from '../../logicLayer/todos'
 import { getUserId } from '../utils'
+import { updateTheTodo } from '../../businessLogic/todos'
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -20,7 +21,7 @@ export const handler = middy(
 
 // console.log(event);
 
-    await updateTodo(userId,todoId,todoUpdate)
+    await updateTheTodo(userId,todoId,todoUpdate)
     return {
       statusCode: 200,
       body: JSON.stringify({
